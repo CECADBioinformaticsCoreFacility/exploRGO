@@ -21,6 +21,7 @@ Imports:
     golem (>= 0.3.1),
     htmltools,
     latex2exp,
+    reactable,
     readr,
     scico,
     shiny (>= 1.7.1),

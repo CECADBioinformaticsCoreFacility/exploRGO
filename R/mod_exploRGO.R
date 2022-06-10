@@ -45,7 +45,18 @@ mod_exploRGO_ui_body <- function(id){
 		),
 		### DGE results tabset output ----
 		fluidRow(
-			reactable::reactableOutput(ns("ora_reactable"))
+			bs4Dash::box(
+				width = 12,
+				title = shiny::h3("GO terms enriched"),
+				solidHeader = FALSE,
+				status = "primary",
+				#"Box body",
+				id = ns("ora_reactable_box"),
+				collapsible = TRUE,
+				closable = FALSE,
+				maximizable = TRUE,
+				reactable::reactableOutput(ns("ora_reactable"))
+			)
 		)
 	)
 }
@@ -80,15 +91,15 @@ mod_exploRGO_ui_controlbar <- function(id){
 			
 			shiny::fileInput(
 				ns("results_annotated_min_cov_grp"),
-				"file", multiple = FALSE, accept = ".csv"
+				"DGE results", multiple = FALSE, accept = ".csv"
 			),
 			shiny::fileInput(
 				ns("comb_GO_result_tibble"),
-				"file", multiple = FALSE, accept = ".csv"
+				"GO ORA results", multiple = FALSE, accept = ".csv"
 			),
 			shiny::fileInput(
 				ns("vst_counts_anno"),
-				"file", multiple = FALSE, accept = ".csv"
+				"counts (vst)", multiple = FALSE, accept = ".tsv"
 			),
 			
 			shiny::textInput(
@@ -144,7 +155,7 @@ mod_exploRGO_server <- function(id) {
 			)
 		})
 		vst_counts_anno <- reactive({
-			readr::read_csv(
+			readr::read_tsv(
 				input$vst_counts_anno$datapath,
 				show_col_types = FALSE
 			)
@@ -179,7 +190,7 @@ mod_exploRGO_server <- function(id) {
 			) 
 		})
 		
-		output$go_results_RT <- reactable::renderReactable({
+		output$ora_reactable <- reactable::renderReactable({
 			go_results_filtered() %>%
 				GO_ORA_RT(onClick = "select", selection = "multiple")
 		})

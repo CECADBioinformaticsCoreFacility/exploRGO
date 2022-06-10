@@ -5,3 +5,8 @@ dev_history.R
 ^dev$
 $run_dev.*
 ^\.github$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^codecov\.yml$
+^LICENSE\.md$

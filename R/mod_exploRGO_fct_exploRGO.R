@@ -12,7 +12,6 @@
 #'
 #' @return a numeric vector
 #'
-#' @examples
 scale_check_set_default_on_fail <- function(vec, default) {
 	vecf <- vec[is.finite(vec)]
 	# needs at least 3 unique finite values to make a colour scale
@@ -36,10 +35,7 @@ scale_check_set_default_on_fail <- function(vec, default) {
 #' @param fill colour of the bar
 #' @param background background colour of the cell
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return html
 bar_chart <- function(
 	label, width = "100%", height = "14px", fill = "#00bfc4", background = NULL
 ) {
@@ -70,7 +66,6 @@ bar_chart <- function(
 #' @return html plot
 #'
 #' @importFrom htmltools div tagAppendChild
-#'
 bar_chart_pos_neg <- function(
 	label, value, max_value = 1, height = "16px",
 	pos_fill = "#005ab5", neg_fill = "#dc3220"
@@ -121,8 +116,8 @@ bar_chart_pos_neg <- function(
 #' @importFrom colourScaleR universal_colour_scaler
 #' @importFrom reactable reactable colDef
 #' @importFrom htmltools div
-#'
-#' @examples
+#' @importFrom dplyr %>%
+#' 
 GO_ORA_RT <- function(data, height = 900, onClick = "expand", selection = NULL) {
 	
 	if(is.null(data)) {
@@ -269,19 +264,20 @@ get_conditions <- function(comparisons) {
 #' @param directions the direction(s) of change in gene expression for which the ORA was performed (Up, Down, Either)
 #' @param p_value the p-value cut off for the ORA analysis
 #'
-#' @return
+#' @return tibble
 #'
 #' @importFrom dplyr filter arrange %>%
+#' @importFrom rlang .data
 go_ora_filters <- function(data, comparisons, ontologies, directions, p_value) {
 	if(directions == "either") {
 		directions <- c("Up", "Down")
 	}
 	data %>%
 		dplyr::filter(
-			comparison %in% comparisons, ont %in% ontologies,
-			direction %in% directions, pvalue < p_value
+			.data$comparison %in% comparisons, .data$ont %in% ontologies,
+			.data$direction %in% directions, .data$pvalue < p_value
 		) %>%
-		dplyr::arrange(pvalue)
+		dplyr::arrange(.data$pvalue)
 }
 
 # go_results_filtered <- 
@@ -311,12 +307,13 @@ go_ora_filters <- function(data, comparisons, ontologies, directions, p_value) {
 #' @importFrom tidyr unnest
 get_go_results_selected <- function(go_results_filtered, selected_lines) {
 	go_results_filtered %>% 
-		dplyr::slice(selected_lines) %>%
-		dplyr::mutate(geneID = strsplit(geneID, split = "/")) %>%
+		dplyr::slice(.data$selected_lines) %>%
+		dplyr::mutate(geneID = strsplit(.data$geneID, split = "/")) %>%
 		dplyr::select(
-			symbol = geneID, ont, comparison, direction, ID, Description
+			symbol = .data$geneID, .data$ont, .data$comparison,
+			.data$direction, .data$ID, .data$Description
 		) %>%
-		tidyr::unnest(symbol)
+		tidyr::unnest(.data$symbol)
 }
 
 
@@ -326,15 +323,15 @@ get_go_results_selected <- function(go_results_filtered, selected_lines) {
 #'  \code{\link{get_go_results_selected}}
 #'
 #' @return a character vector of gene symbols
-#' @importFrom dplyr pull
-#' @example 
+#' @importFrom dplyr pull %>%
+#' @examples
 #' \dontrun{
 #' go_results_selected_genes <- get_go_results_selected_genes(
 #' 	 go_results_selected
 #' )
 #' }
 get_go_results_selected_genes <- function(go_results_selected) {
-	go_results_selected %>% dplyr::pull(symbol) %>% unlist() %>% unique()
+	go_results_selected %>% dplyr::pull(.data$symbol) %>% unlist() %>% unique()
 }
 
 
@@ -350,15 +347,16 @@ get_go_results_selected_genes <- function(go_results_selected) {
 #' 
 #' @importFrom dplyr %>% select
 #' @importFrom purrr map
+#' @importFrom rlang .data
 counts_selection <- function(
 	counts, comparisons, genes, mean_of_repeats = TRUE
 ) {
 	conditions <- get_conditions(comparisons)
 	conditions_regex <- p
-	aste(conditions, collapse = "|")
+	paste(conditions, collapse = "|")
 	
 	counts_mat <- counts %>% 
-		dplyr::select(-c(gene_id, SYMBOL)) %>%
+		dplyr::select(-c(.data$gene_id, .data$SYMBOL)) %>%
 		data.matrix()
 	rownames(counts_mat) <- counts$SYMBOL
 	counts_mat_selected <- counts_mat[
@@ -370,7 +368,7 @@ counts_selection <- function(
 			mat <- rowMeans(counts_mat_selected[
 				, grepl(.x, colnames(counts_mat_selected)), drop = FALSE
 			])
-		}) %>% do.call("cbind", .)
+		}) %>% do.call("cbind", .data)
 		colnames(counts_mat_selected) <- conditions
 	}
 	
@@ -400,9 +398,9 @@ filter_DGE_results <- function(
 ) {
 	dge_data %>%
 		dplyr::filter(
-			comparison %in% comparisons, symbol %in% genes,
-			pvalue < p_value, 
-			(log2FoldChange < lfc_down | log2FoldChange > lfc_up)
+			.data$comparison %in% comparisons, .data$symbol %in% genes,
+			.data$pvalue < p_value, 
+			(.data$log2FoldChange < lfc_down | .data$log2FoldChange > lfc_up)
 		)
 }
 
@@ -426,12 +424,14 @@ filter_DGE_results <- function(
 #' @importFrom tidyr nest
 add_selected_GO_results <- function(DGE_data, go_results_selected) {
 	dplyr::left_join(
-		DGE_data, go_results_selected, by = c("comparison","symbol")
+		.data$DGE_data, .data$go_results_selected, by = c("comparison","symbol")
 	) %>%
 		dplyr::group_by(
-			gene_id, baseMean, log2FoldChange, lfcSE, pvalue, padj, seqnames,
-			start, end, width, strand, gene_name, gene_biotype,
-			seq_coord_system, description, symbol, entrezid, comparison
+			.data$gene_id, .data$baseMean, .data$log2FoldChange, .data$lfcSE,
+			.data$pvalue, .data$padj, .data$seqnames,
+			.data$start, .data$end, .data$width, .data$strand, .data$gene_name,
+			.data$gene_biotype, .data$seq_coord_system, .data$description, 
+			.data$symbol, .data$entrezid, .data$comparison
 		) %>% 
 		tidyr::nest() %>%
 		dplyr::ungroup()
@@ -449,9 +449,11 @@ add_selected_GO_results <- function(DGE_data, go_results_selected) {
 #'
 #' @return a tibble
 #'
-#' @importFrom dplyr mutate
+#' @importFrom dplyr mutate select %>%
 #' @importFrom purrr map_chr
-#' #' @example 
+#' @importFrom rlang .data
+#' 
+#' @examples 
 #' \dontrun{
 #' selected_GO_results_labelled <- collapse_selected_GO_results_to_label(
 #' 	DGE_with_selected_GO_results
@@ -461,7 +463,7 @@ collapse_selected_GO_results_to_label <- function(DGE_with_selected_GO_results) 
 	DGE_with_selected_GO_results %>%
 		dplyr::mutate(
 			#n = purrr::map_int(data, nrow),
-			selected_pathways = purrr::map_chr(data, ~{
+			selected_pathways = purrr::map_chr(.data$data, ~{
 				res <- NULL
 				if(nrow(.x) == 1 & is.na(.x[[1, 1]])) {
 					res <- NA_character_
@@ -476,7 +478,7 @@ collapse_selected_GO_results_to_label <- function(DGE_with_selected_GO_results) 
 				res
 			})
 		) %>%
-		select(-data)
+		dplyr::select(-.data$data)
 }
 
 
@@ -489,17 +491,22 @@ collapse_selected_GO_results_to_label <- function(DGE_with_selected_GO_results) 
 #' @importFrom ggplot2 ggplot aes geom_point theme_minimal labs
 #' @importFrom latex2exp TeX
 #' @importFrom scico scale_color_scico_d
-#' @example 
+#' @importFrom rlang .data
+#' @examples 
 #' \dontrun{
 #' volcano_plotter(selected_GO_results_labelled)
 #' }
 volcano_plotter <- function(DGE_data) {
-	ggplot(DGE_data, aes(log2FoldChange, -log10(pvalue))) + 
-		geom_point(color = "grey", shape = 1) + 
-		geom_point(aes(color = selected_pathways), size = 2) + 
+	ggplot2::ggplot(
+		DGE_data, ggplot2::aes(.data$log2FoldChange, -log10(.data$pvalue))
+	) + 
+		ggplot2::geom_point(color = "grey", shape = 1) + 
+		ggplot2::geom_point(
+			ggplot2::aes(color = .data$selected_pathways), size = 2
+		) + 
 		scico::scale_color_scico_d() +
-		theme_minimal() + 
-		labs(
+		ggplot2::theme_minimal() + 
+		ggplot2::labs(
 			y = latex2exp::TeX("$-log_{10}(p-value)$"),
 			x = latex2exp::TeX("$log_{2}(Fold Change)$")
 		)
@@ -507,16 +514,17 @@ volcano_plotter <- function(DGE_data) {
 
 
 #' heatmap_plotter
-#'
+#' 
 #' @param mat a gene expression matrix
 #'
 #' @return a ComplexHeatmap Heatmap
 #'
-#' @importFrom ComplexHeatmap Heatmap
-#' @example 
+#' @examples
 #' \dontrun{
 #' heatmap_plotter(selected_vst_mat)
 #' }
+#' 
+#' @importFrom ComplexHeatmap Heatmap
 heatmap_plotter <- function(mat) {
 	#ComplexHeatmap::pheatmap(mat)
 	ComplexHeatmap::Heatmap(t(mat), name = "vst")

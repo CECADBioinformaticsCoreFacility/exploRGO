@@ -16,6 +16,36 @@ mod_exploRGO_ui_body <- function(id){
 		fluidRow(
 			### UpSet plot box ----
 			bs4Dash::box(
+				width = 12,
+				title = shiny::h3("test box"),
+				solidHeader = FALSE,
+				status = "danger",
+				# h4(textOutput("upset_plot_selected")),
+				#"Box body",
+				id = ns("testing_box"),
+				collapsible = TRUE,
+				closable = FALSE,
+				maximizable = TRUE,
+				# #actionButton("reset_selection", "Reset Selection"),
+				# shiny::verbatimTextOutput(ns("direction_filter")),
+				# shiny::verbatimTextOutput(ns("comparisons")),
+				# shiny::verbatimTextOutput(ns("ontologies")),
+				# shiny::verbatimTextOutput(ns("ora_pvalue")),
+				# 
+				# shiny::verbatimTextOutput(ns("go_results_selected")),
+				# 
+				# # shiny::tableOutput(ns("go_results_filtered_tab")),
+				# # shiny::tableOutput(ns("comb_GO_result_tibble")),
+				# shiny::tableOutput(ns("go_results_selected_tab")),
+				# 
+				# shiny::verbatimTextOutput(ns("go_results_selected_genes")),
+				# shiny::tableOutput(ns("selected_vst_mat")),
+				shiny::tableOutput(ns("filtered_DGE_results_tab"))
+				
+			)
+		),
+		fluidRow(
+			bs4Dash::box(
 				width = 6,
 				title = shiny::h3("Volcano Plot"),
 				solidHeader = FALSE,
@@ -55,7 +85,8 @@ mod_exploRGO_ui_body <- function(id){
 				collapsible = TRUE,
 				closable = FALSE,
 				maximizable = TRUE,
-				reactable::reactableOutput(ns("ora_reactable"))
+				#reactable::reactableOutput(ns("ora_reactable"))
+				reactable::reactableOutput("ora_reactable")
 			)
 		)
 	)
@@ -161,6 +192,7 @@ mod_exploRGO_server <- function(id) {
 			)
 		})
 		
+		output$direction_filter <- renderText(direction_filter())
 		direction_filter <- reactive({
 			switch(
 				input$directional,
@@ -178,10 +210,14 @@ mod_exploRGO_server <- function(id) {
 		# 	unique(comb_GO_result_tibble()$ont)
 		# })
 		
-		
+		output$comparisons <- renderText(input$comparisons)
+		output$ontologies <- renderText(input$ontologies)
+		output$ora_pvalue <- renderText(input$ora_pvalue)
 		
 		go_results_filtered <- reactive({
+			req(input$comb_GO_result_tibble$datapath)
 			go_ora_filters(
+				comb_GO_result_tibble(),
 				#comparisons, ontologies, "Up", 0.05
 				input$comparisons,
 				input$ontologies,
@@ -189,6 +225,13 @@ mod_exploRGO_server <- function(id) {
 				input$ora_pvalue
 			) 
 		})
+		
+		output$go_results_filtered_tab <- renderTable(
+			head(go_results_filtered()) %>% dplyr::select(-geneID)
+		)
+		output$comb_GO_result_tibble <- renderTable(
+			head(comb_GO_result_tibble()) %>% dplyr::select(-geneID)
+		)
 		
 		output$ora_reactable <- reactable::renderReactable({
 			go_results_filtered() %>%
@@ -198,12 +241,28 @@ mod_exploRGO_server <- function(id) {
 		go_results_selected <- reactive({
 			get_go_results_selected(
 				go_results_filtered(),
-				reactable::getReactableState(
-					input = "go_results_RT", output = "selected", session
-				)
-			)}
-		)
+				1:10
+				# reactable::getReactableState( #go_results_RT
+				# 	outputId = ns("ora_reactable"), name = "selected"
+				# )
+			)
+		})
 		
+		output$go_results_selected <- renderText({
+			state <- reactable::getReactableState(
+				#ns("ora_reactable"),
+				"ora_reactable",
+				"selected"
+			)
+			state
+		})
+		
+		output$go_results_selected_tab <- renderTable({
+			go_results_selected() %>% head()
+		})
+		
+		
+		output$go_results_selected_genes <- renderText(go_results_selected_genes())
 		go_results_selected_genes <- reactive({
 			get_go_results_selected_genes(go_results_selected())
 		})
@@ -228,13 +287,13 @@ mod_exploRGO_server <- function(id) {
 			
 			tagList(
 				numericInput(
-					ns("minlog2FoldChange"),
+					ns("lfc_down"),
 					"Down-regulated threshold log2(Fold Change)", value = -1,
 					#min = min_lfc(), max = max_lfc(), step = 0.1
 					min = min_lfc, max = max_lfc, step = 0.1
 				),
 				numericInput(
-					ns("maxlog2FoldChange"),
+					ns("lfc_up"),
 					"Up-regulated threshold log2(Fold Change)", value = 1,
 					#min = min_lfc(), max = max_lfc(), step = 0.1
 					min = min_lfc, max = max_lfc, step = 0.1
@@ -256,16 +315,20 @@ mod_exploRGO_server <- function(id) {
 			)
 		})
 		
+		output$filtered_DGE_results_tab <- renderTable(head(filtered_DGE_results()))
 		filtered_DGE_results <- reactive({
+			req(input$results_annotated_min_cov_grp$datapath)
 			filter_DGE_results(
 				results_annotated_min_cov_grp(),
 				input$comparisons,
 				go_results_selected_genes(),
-				input$dge_pvalue, input$lfc_down, input$lfc_up
+				input$deg_pvalue, input$lfc_down, input$lfc_up
 			)
 		})
 		
 		DGE_with_selected_GO_results <- reactive({
+			req(input$results_annotated_min_cov_grp$datapath)
+			req(input$comb_GO_result_tibble$datapath)
 			add_selected_GO_results(
 				#results_annotated_min_cov_grp,
 				filtered_DGE_results(),
@@ -274,15 +337,28 @@ mod_exploRGO_server <- function(id) {
 		})
 		
 		selected_GO_results_labelled <- reactive({
+			req(input$comb_GO_result_tibble$datapath)
 			collapse_selected_GO_results_to_label(
 				DGE_with_selected_GO_results()
 			)
 		})
 		
+		
+		output$selected_vst_mat <- renderTable(
+			as.data.frame(t(head(selected_vst_mat())))
+		)
 		selected_vst_mat <- reactive({
+			req(input$vst_counts_anno$datapath)
+			req(input$comb_GO_result_tibble$datapath)
 			counts_selection(
 				vst_counts_anno(),
+				#unlist(input$comparisons), 
 				input$comparisons, 
+				# c("BAT_AKO_vs_BAT_WT", "BAT_KO_vs_BAT_WT"),
+				# c(
+				# 	"Cox6c", "Ldhd", "Ndufa4", "Atp5e", "Nat8l", "Cox8a",
+				# 	"Cox6a1", "Crls1", "Ndufb8", "Ndufa1", "Suox", "Sdha"
+				# )
 				go_results_selected_genes()
 			)
 		})
@@ -293,7 +369,7 @@ mod_exploRGO_server <- function(id) {
 		output$volcano_plot <- shiny::renderPlot({
 			volcano_plotter(selected_GO_results_labelled())
 		})
-		
+
 		output$heatmap <- shiny::renderPlot({
 			heatmap_plotter(selected_vst_mat())
 		})

@@ -307,7 +307,7 @@ go_ora_filters <- function(data, comparisons, ontologies, directions, p_value) {
 #' @importFrom tidyr unnest
 get_go_results_selected <- function(go_results_filtered, selected_lines) {
 	go_results_filtered %>% 
-		dplyr::slice(.data$selected_lines) %>%
+		dplyr::slice(selected_lines) %>%
 		dplyr::mutate(geneID = strsplit(.data$geneID, split = "/")) %>%
 		dplyr::select(
 			symbol = .data$geneID, .data$ont, .data$comparison,
@@ -352,8 +352,7 @@ counts_selection <- function(
 	counts, comparisons, genes, mean_of_repeats = TRUE
 ) {
 	conditions <- get_conditions(comparisons)
-	conditions_regex <- p
-	paste(conditions, collapse = "|")
+	conditions_regex <- paste(conditions, collapse = "|")
 	
 	counts_mat <- counts %>% 
 		dplyr::select(-c(.data$gene_id, .data$SYMBOL)) %>%
@@ -368,7 +367,8 @@ counts_selection <- function(
 			mat <- rowMeans(counts_mat_selected[
 				, grepl(.x, colnames(counts_mat_selected)), drop = FALSE
 			])
-		}) %>% do.call("cbind", .data)
+		})
+		counts_mat_selected <- do.call("cbind", counts_mat_selected)
 		colnames(counts_mat_selected) <- conditions
 	}
 	
@@ -399,8 +399,8 @@ filter_DGE_results <- function(
 	dge_data %>%
 		dplyr::filter(
 			.data$comparison %in% comparisons, .data$symbol %in% genes,
-			.data$pvalue < p_value, 
-			(.data$log2FoldChange < lfc_down | .data$log2FoldChange > lfc_up)
+			.data$pvalue < p_value#, 
+			#(.data$log2FoldChange < lfc_down | .data$log2FoldChange > lfc_up)
 		)
 }
 

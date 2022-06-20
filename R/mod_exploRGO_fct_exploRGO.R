@@ -349,17 +349,22 @@ get_go_results_selected_genes <- function(go_results_selected) {
 #' @importFrom purrr map
 #' @importFrom rlang .data
 counts_selection <- function(
-	counts, comparisons, genes, mean_of_repeats = TRUE
+	counts, comparisons, genes, mean_of_repeats = TRUE, all_comparisons = FALSE
 ) {
-	conditions <- get_conditions(comparisons)
-	conditions_regex <- paste(conditions, collapse = "|")
-	
 	counts_mat <- counts %>% 
 		dplyr::select(-c(.data$gene_id, .data$SYMBOL)) %>%
 		data.matrix()
 	rownames(counts_mat) <- counts$SYMBOL
+	
+	selected_conditions <- colnames(counts_mat)
+	if(!all_comparisons) {
+		conditions <- get_conditions(comparisons)
+		conditions_regex <- paste(conditions, collapse = "|")
+		selected_conditions <- grepl(conditions_regex, colnames(counts_mat))
+	}
+	
 	counts_mat_selected <- counts_mat[
-		genes, grepl(conditions_regex, colnames(counts_mat))
+		genes, selected_conditions
 	]
 	
 	if(mean_of_repeats) {
@@ -398,9 +403,10 @@ filter_DGE_results <- function(
 ) {
 	dge_data %>%
 		dplyr::filter(
-			.data$comparison %in% comparisons, .data$symbol %in% genes,
-			.data$pvalue < p_value#, 
-			#(.data$log2FoldChange < lfc_down | .data$log2FoldChange > lfc_up)
+			.data$comparison %in% comparisons,
+			.data$symbol %in% genes,
+			.data$pvalue < p_value, 
+			.data$log2FoldChange > lfc_up | .data$log2FoldChange < lfc_down
 		)
 }
 
@@ -424,7 +430,7 @@ filter_DGE_results <- function(
 #' @importFrom tidyr nest
 add_selected_GO_results <- function(DGE_data, go_results_selected) {
 	dplyr::left_join(
-		.data$DGE_data, .data$go_results_selected, by = c("comparison","symbol")
+		DGE_data, go_results_selected, by = c("comparison","symbol")
 	) %>%
 		dplyr::group_by(
 			.data$gene_id, .data$baseMean, .data$log2FoldChange, .data$lfcSE,
@@ -505,11 +511,13 @@ volcano_plotter <- function(DGE_data) {
 			ggplot2::aes(color = .data$selected_pathways), size = 2
 		) + 
 		scico::scale_color_scico_d() +
-		ggplot2::theme_minimal() + 
+		#ggplot2::theme_minimal() + 
+		ggplot2::theme_bw() + 
 		ggplot2::labs(
 			y = latex2exp::TeX("$-log_{10}(p-value)$"),
 			x = latex2exp::TeX("$log_{2}(Fold Change)$")
-		)
+		) + 
+		ggplot2::facet_wrap(~.data$comparison)
 }
 
 

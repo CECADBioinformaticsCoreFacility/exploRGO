@@ -92,6 +92,13 @@
       "Source": "Bioconductor",
       "Hash": "a60f752f43d02ebcacd6fdfa02e1d97b"
     },
+    "askpass": {
+      "Package": "askpass",
+      "Version": "1.1",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "e8a22846fff485f0be3770c2da758713"
+    },
     "assertthat": {
       "Package": "assertthat",
       "Version": "0.2.1",
@@ -272,6 +279,13 @@
       "Repository": "RSPM",
       "Hash": "db9463f8f96444ac790bef2076048699"
     },
+    "curl": {
+      "Package": "curl",
+      "Version": "4.3.2",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "022c42d49c28e95d69ca60446dbabf88"
+    },
     "desc": {
       "Package": "desc",
       "Version": "1.4.0",
@@ -341,13 +355,6 @@
       "Source": "Repository",
       "Repository": "RSPM",
       "Hash": "ec8ca05cffcc70569eaaad8469d2a3a7"
-    },
-    "exploRGO": {
-      "Package": "exploRGO",
-      "Version": "0.0.0.9000",
-      "Source": "unknown",
-      "Remotes": "richardjacton/colourScaleR",
-      "Hash": "0facc1ea5e818e444e3f1310a03a8607"
     },
     "fansi": {
       "Package": "fansi",
@@ -503,6 +510,13 @@
       "Repository": "RSPM",
       "Hash": "65e865802fe6dd1bafef1dae5b80a844"
     },
+    "httr": {
+      "Package": "httr",
+      "Version": "1.4.2",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "a525aba14184fec243f9eaec62fbed43"
+    },
     "ini": {
       "Package": "ini",
       "Version": "0.3.1",
@@ -568,10 +582,17 @@
     },
     "lattice": {
       "Package": "lattice",
-      "Version": "0.20-45",
+      "Version": "0.20-44",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "b64cdbb2b340437c4ee047a1f4c4377b"
+      "Hash": "f36bf1a849d9106dc2af72e501f9de41"
+    },
+    "lazyeval": {
+      "Package": "lazyeval",
+      "Version": "0.2.2",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "d908914ae53b04d4c0c0fd72ecc35370"
     },
     "lifecycle": {
       "Package": "lifecycle",
@@ -603,10 +624,10 @@
     },
     "mgcv": {
       "Package": "mgcv",
-      "Version": "1.8-38",
+      "Version": "1.8-36",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "be3c61ffbb1e3d3b3df214d192ac5444"
+      "Hash": "93cc747b0e1ad882a4570463c3575c23"
     },
     "mime": {
       "Package": "mime",
@@ -624,10 +645,17 @@
     },
     "nlme": {
       "Package": "nlme",
-      "Version": "3.1-153",
+      "Version": "3.1-152",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "35de1ce639f20b5e10f7f46260730c65"
+    },
+    "openssl": {
+      "Package": "openssl",
+      "Version": "1.4.5",
       "Source": "Repository",
       "Repository": "RSPM",
-      "Hash": "2d632e0d963a653a0329756ce701ecdd"
+      "Hash": "5406fd37ef0bf9b88c8a4f264d6ec220"
     },
     "parsedate": {
       "Package": "parsedate",
@@ -797,6 +825,13 @@
       "Repository": "RSPM",
       "Hash": "30e5eba91b67f7f4d75d31de14bbfbdc"
     },
+    "rex": {
+      "Package": "rex",
+      "Version": "1.2.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "093584b944440c5cd07a696b3c8e0e4c"
+    },
     "rhub": {
       "Package": "rhub",
       "Version": "1.1.1",
@@ -922,6 +957,13 @@
       "Source": "Repository",
       "Repository": "RSPM",
       "Hash": "0759e6b6c0957edb1311028a49a35e76"
+    },
+    "sys": {
+      "Package": "sys",
+      "Version": "3.4",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "b227d13e29222b4574486cfcbde077fa"
     },
     "systemfonts": {
       "Package": "systemfonts",

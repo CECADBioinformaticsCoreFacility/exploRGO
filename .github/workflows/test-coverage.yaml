@@ -21,9 +21,12 @@ jobs:
         with:
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-r-dependencies@v1
+      - uses: r-lib/actions/setup-renv@v2
         with:
-          extra-packages: covr
+          cache-version: 2
+      # - uses: r-lib/actions/setup-r-dependencies@v1
+      #   with:
+      #     extra-packages: covr
 
       - name: Test coverage
         run: covr::codecov()

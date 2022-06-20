@@ -30,7 +30,7 @@ jobs:
           needs: website
 
       - name: install self
-        run: renv::install("exploRGO")
+        run: renv::install("CECADBioinformaticsCoreFacility/exploRGO")
         shell: Rscript {0}
 
       # - uses: r-lib/actions/setup-r-dependencies@v1

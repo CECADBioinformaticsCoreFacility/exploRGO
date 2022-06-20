@@ -342,6 +342,7 @@ get_go_results_selected_genes <- function(go_results_selected) {
 #' @param genes the genes for which to get the counts
 #' @param mean_of_repeats if TRUE (default) takes the mean of repeats, 
 #' if FALSE shows results for all conditions.
+#' @param all_comparisons show all comparisons instead of the selected subset
 #'
 #' @return matrix
 #' 

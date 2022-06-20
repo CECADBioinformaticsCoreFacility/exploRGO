@@ -4,7 +4,13 @@
 \alias{counts_selection}
 \title{counts_selection}
 \usage{
-counts_selection(counts, comparisons, genes, mean_of_repeats = TRUE)
+counts_selection(
+  counts,
+  comparisons,
+  genes,
+  mean_of_repeats = TRUE,
+  all_comparisons = FALSE
+)
 }
 \arguments{
 \item{counts}{count matrix as tibble with gene_id, SYMBOL columns}
@@ -15,6 +21,8 @@ counts_selection(counts, comparisons, genes, mean_of_repeats = TRUE)
 
 \item{mean_of_repeats}{if TRUE (default) takes the mean of repeats, 
 if FALSE shows results for all conditions.}
+
+\item{all_comparisons}{show all comparisons instead of the selected subset}
 }
 \value{
 matrix

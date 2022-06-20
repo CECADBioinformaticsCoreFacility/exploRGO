@@ -1,0 +1,13 @@
+name: exploRGO
+title: exploRGO
+username:
+account: richardjacton
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6517790
+bundleId: 6023788
+url: https://richardjacton.shinyapps.io/exploRGO/
+when: 1655720435.22901
+lastSyncTime: 1655720435.22902
+asMultiple: FALSE
+asStatic: FALSE

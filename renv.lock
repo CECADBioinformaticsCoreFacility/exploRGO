@@ -382,14 +382,6 @@
       "Repository": "RSPM",
       "Hash": "ec8ca05cffcc70569eaaad8469d2a3a7"
     },
-    "exploRGO": {
-      "Package": "exploRGO",
-      "Version": "0.0.0.9000",
-      "Source": "Repository",
-      "Repository": "Bioconductor",
-      "Remotes": "richardjacton/colourScaleR",
-      "Hash": "d66f632645171a93c76bd97fa8d479cd"
-    },
     "fansi": {
       "Package": "fansi",
       "Version": "0.5.0",

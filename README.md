@@ -24,6 +24,9 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(exploRGO)
-## basic example code
+exploRGO::run_app()
 ```
 
+## Deployment
+
+The is an instance of [exploRGO](https://richardjacton.shinyapps.io/exploRGO/) running on shinyapps.io
